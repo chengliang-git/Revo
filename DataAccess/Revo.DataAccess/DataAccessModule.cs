@@ -1,4 +1,6 @@
 ﻿using Ninject.Modules;
+using Revo.Core.Module;
+using Revo.DataAccess.ModuleInfo;
 
 namespace Revo.DataAccess
 {
@@ -6,6 +8,9 @@ namespace Revo.DataAccess
     {
         public override void Load()
         {
+            Bind<IModuleInfoProvider>()
+                .To<RevoDataAccessModuleInfoProvider>()
+                .InSingletonScope();
         }
     }
 }

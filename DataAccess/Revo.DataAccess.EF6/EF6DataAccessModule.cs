@@ -4,9 +4,11 @@ using Ninject.Modules;
 using Revo.Core.Core;
 using Revo.Core.IO.OData;
 using Revo.Core.Lifecycle;
+using Revo.Core.Module;
 using Revo.DataAccess.EF6.Entities;
 using Revo.DataAccess.EF6.IO.OData;
 using Revo.DataAccess.EF6.Model;
+using Revo.DataAccess.EF6.ModuleInfo;
 using Revo.DataAccess.Entities;
 using Revo.Platforms.AspNet.IO.OData;
 
@@ -16,6 +18,10 @@ namespace Revo.DataAccess.EF6
     {
         public override void Load()
         {
+            Bind<IModuleInfoProvider>()
+                .To<RevoDataAccessEF6ModuleInfoProvider>()
+                .InSingletonScope();
+
             Bind<DbContext>().To<EntityContext>()
                  .InTransientScope()
                  .WithConstructorArgument("connectionName", "EntityContext");

@@ -1,4 +1,16 @@
-﻿/******
+﻿/*
+ModuleId: 5F08DF74-3C4B-4DBD-AD35-26565239E157
+Version: 1.0.0
+ScriptId: 77839C5A-48FC-42CF-B952-EF65AD7E84FD
+*/
+IF NOT EXISTS (SELECT 1 FROM [dbo].[REV_SCRIPT_LOG] WHERE [REV_SCL_ScriptId] = '1FBA6358-7AC1-4B6F-82D6-48BBCBD5C99E' AND [REV_SCL_CompletionTimestamp] IS NOT NULL)
+	RAISERROR('Revo create script must be run first.', 20, 1)  WITH LOG;
+GO
+EXEC [dbo].[REV_SP_CheckScriptsRun] 'CDED157F-2538-4F33-81E0-4B2DD1BCC4AA';
+GO
+EXEC [dbo].[REV_SP_RunStructureScript] '77839C5A-48FC-42CF-B952-EF65AD7E84FD', '03_REV_INDICES.sql', 'DCB948CF-C9DB-41C9-AE9C-C08E97BC87B2', '1.0.0';
+GO
+/******
 EVENT STORE
 ******/
 
@@ -31,3 +43,6 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UIX_RAE_QUEUED_ASYNC_EVEN
 GO
 
 /*** TODO ***/
+
+/************************************************/
+EXEC [dbo].[REV_SP_CompleteStructureScript] '77839C5A-48FC-42CF-B952-EF65AD7E84FD', '1.0.0';
