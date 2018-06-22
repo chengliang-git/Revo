@@ -1,20 +1,102 @@
-/*
-ModuleId: 5F08DF74-3C4B-4DBD-AD35-26565239E157
-Version: 1.0.0
-ScriptId: CDED157F-2538-4F33-81E0-4B2DD1BCC4AA
-*/
+/**********
+Database versioning infrastructure
+**********/
 
-IF	NOT EXISTS (SELECT 1 FROM [REV_SCRIPT_LOG] WHERE [REV_SCL_ScriptId] = '1FBA6358-7AC1-4B6F-82D6-48BBCBD5C99E' AND [REV_SCL_CompletionTimestamp] IS NOT NULL)
-	RAISERROR('Revo infrastructure CREATE must be run first.', 20, 1)  WITH LOG;
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_INSTANCE')
+CREATE TABLE [REV_INSTANCE] (
+	[REV_INS_InstanceId] [UNIQUEIDENTIFIER],
+	[REV_INS_Ordinal] [INT] IDENTITY(1,1),
+	[REV_INS_Version] [INT] NOT NULL,
+	[REV_INS_Name] [NVARCHAR](1024) NOT NULL,
+	[REV_INS_InstanceVersion] [NVARCHAR](4000),
+	CONSTRAINT [REV_INSTANCE_PK] PRIMARY KEY NONCLUSTERED ([REV_INS_InstanceId])
+);
 GO
 
-DECLARE @logId UNIQUEIDENTIFIER = NEWID();
-DECLARE @timestamp DATETIME = GETDATE();
-INSERT INTO [dbo].[REV_SCRIPT_LOG] ([REV_SCL_ScriptLogId],[REV_SCL_ScriptId], [REV_SCL_ScriptVersion],[REV_SCL_ScriptType],[REV_SCL_ScriptName],[REV_SCL_DbVersionId],[REV_SCL_StartTimestamp],[REV_SCL_CompletionTimestamp])
-	VALUES (@logId, 'CDED157F-2538-4F33-81E0-4B2DD1BCC4AA', '1.0.0', 'STRUCTURE', '05_INS_PROGRAMMABILITY', 'DCB948CF-C9DB-41C9-AE9C-C08E97BC87B2', @timestamp, null);
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_MODULE')
+CREATE TABLE [REV_MODULE] (
+	[REV_MOD_ModuleId] [UNIQUEIDENTIFIER],
+	[REV_MOD_Ordinal] [INT] IDENTITY(1,1),
+	[REV_MOD_Version] [INT] NOT NULL,
+	[REV_MOD_Name] [NVARCHAR](1024) NOT NULL,		
+	CONSTRAINT [REV_MODULE_PK] PRIMARY KEY NONCLUSTERED ([REV_MOD_ModuleId])	
+);
 GO
 
-/***************************************************************/
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_MODULE_INSTANCE')
+CREATE TABLE [REV_MODULE_INSTANCE] (
+	[REV_MOI_ModuleInstanceId] [UNIQUEIDENTIFIER],
+	[REV_MOI_Ordinal] [INT] IDENTITY(1,1),
+	[REV_MOI_Version] [INT] NOT NULL,
+	[REV_MOI_InstanceVersion] [VARCHAR](4000) NOT NULL,
+	[REV_MOI_ModuleId] [UNIQUEIDENTIFIER] NOT NULL,
+	[REV_MOI_InstanceId] [UNIQUEIDENTIFIER] NOT NULL,
+	CONSTRAINT [REV_MODULE_INSTANCE_PK] PRIMARY KEY NONCLUSTERED ([REV_MOI_ModuleInstanceId]),
+	CONSTRAINT [REV_MODULE_INSTANCE_FK_SERVER_INSTANCE] FOREIGN KEY ([REV_MOI_InstanceId]) REFERENCES [dbo].[REV_INSTANCE]([REV_INS_InstanceId]) ON DELETE CASCADE,
+	CONSTRAINT [REV_MODULE_INSTANCE_FK_MODULE] FOREIGN KEY ([REV_MOI_ModuleId]) REFERENCES [dbo].[REV_MODULE]([REV_MOD_ModuleId]) ON DELETE CASCADE
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_LIBRARY')
+CREATE TABLE [REV_LIBRARY] (
+	[REV_LIB_LibraryId] [UNIQUEIDENTIFIER],
+	[REV_LIB_Ordinal] [INT] IDENTITY(1,1),
+	[REV_LIB_Version] [INT] NOT NULL,
+	[REV_LIB_AssemblyName] [NVARCHAR](4000) NOT NULL,
+	[REV_LIB_AssemblyVersion] [VARCHAR](4000) NOT NULL,
+	[REV_LIB_ModuleInstanceId] [UNIQUEIDENTIFIER] NOT NULL,
+	CONSTRAINT [REV_LIBRARY_PK] PRIMARY KEY NONCLUSTERED ([REV_LIB_LibraryId]),
+	CONSTRAINT [REV_LIBRARY_FK_MODULE] FOREIGN KEY ([REV_LIB_ModuleInstanceId]) REFERENCES [dbo].[REV_MODULE_INSTANCE]([REV_MOI_ModuleInstanceId]) ON DELETE CASCADE
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_DB_VERSION')
+CREATE TABLE [REV_DB_VERSION] (
+	[REV_DBV_DbVersionId] [UNIQUEIDENTIFIER],
+	[REV_DBV_Ordinal] [INT] IDENTITY(1,1),
+	[REV_DBV_ModuleId] [UNIQUEIDENTIFIER] NOT NULL,
+	[REV_DBV_Version] [INT] NOT NULL,
+	[REV_DBV_DbVersion] [VARCHAR](255) NOT NULL,
+	[REV_DBV_MinModuleVersion] [VARCHAR](255) NOT NULL,
+	[REV_DBV_MaxModuleVersion] [VARCHAR](255) NOT NULL,	
+	CONSTRAINT [REV_DB_VERSION_PK] PRIMARY KEY NONCLUSTERED ([REV_DBV_DbVersionId]),
+	CONSTRAINT [REV_DB_VERSION_FK_MODULE] FOREIGN KEY ([REV_DBV_ModuleId]) REFERENCES [dbo].[REV_MODULE]([REV_MOD_ModuleId])
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_DATA_VERSION')
+CREATE TABLE [REV_DATA_VERSION] (
+	[REV_DTV_DataVersionId] [UNIQUEIDENTIFIER],
+	[REV_DTV_Ordinal] [INT] IDENTITY(1,1),
+	[REV_DTV_Version] [INT] NOT NULL,
+	[REV_DTV_Serie] [NVARCHAR](1024),
+	[REV_DTV_DataVersionName] [VARCHAR](255) NOT NULL,
+	CONSTRAINT [REV_DATA_VERSION_PK] PRIMARY KEY NONCLUSTERED ([REV_DTV_DataVersionId])
+);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'REV_SCRIPT_LOG')
+CREATE TABLE [REV_SCRIPT_LOG] (
+	[REV_SCL_ScriptLogId] [UNIQUEIDENTIFIER],
+	[REV_SCL_Ordinal] [INT] IDENTITY(1,1),
+	[REV_SCL_Version] [INT] NOT NULL,
+	[REV_SCL_ScriptId] [UNIQUEIDENTIFIER] NOT NULL,
+	[REV_SCL_ScriptVersion] [VARCHAR](255),
+	[REV_SCL_ScriptType] [VARCHAR](255) NOT NULL,
+	[REV_SCL_ScriptName] [NVARCHAR](1024) NOT NULL,
+	[REV_SCL_DbVersionId] [UNIQUEIDENTIFIER],
+	[REV_SCL_DataVersionId] [UNIQUEIDENTIFIER],
+	[REV_SCL_StartTimestamp] [DATETIME] NOT NULL,
+	[REV_SCL_CompletionTimestamp] [DATETIME],
+	CONSTRAINT [REV_SCRIPT_LOG_PK] PRIMARY KEY NONCLUSTERED ([REV_SCL_ScriptLogId]),
+	CONSTRAINT [REV_SCRIPT_LOG_FK_DB_VERSION] FOREIGN KEY ([REV_SCL_DbVersionId]) REFERENCES [dbo].[REV_DB_VERSION]([REV_DBV_DbVersionId]),
+	CONSTRAINT [REV_SCRIPT_LOG_FK_DATA_VERSION] FOREIGN KEY ([REV_SCL_DataVersionId]) REFERENCES [dbo].[REV_DATA_VERSION]([REV_DTV_DataVersionId])
+);
+GO
+
+
+/************************************************************************************/
+
 IF  EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[string_split]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
 	DROP FUNCTION [dbo].[string_split]
 GO
@@ -239,8 +321,8 @@ BEGIN
 
 	DECLARE @logId UNIQUEIDENTIFIER = NEWID();
 	DECLARE @timestamp DATETIME = GETDATE();
-	INSERT INTO [dbo].[REV_SCRIPT_LOG] ([REV_SCL_ScriptLogId],[REV_SCL_ScriptId], [REV_SCL_ScriptVersion], [REV_SCL_ScriptType],[REV_SCL_ScriptName],[REV_SCL_DbVersionId],[REV_SCL_StartTimestamp],[REV_SCL_CompletionTimestamp])
-	VALUES (@logId, @scriptId, @scriptVersion, 'STRUCTURE', @scriptName, @dbVersionId, @timestamp, null);
+	INSERT INTO [dbo].[REV_SCRIPT_LOG] ([REV_SCL_ScriptLogId],[REV_SCL_ScriptId], [REV_SCL_ScriptVersion], [REV_SCL_ScriptType],[REV_SCL_ScriptName],[REV_SCL_DbVersionId],[REV_SCL_StartTimestamp],[REV_SCL_CompletionTimestamp],[REV_SCL_Version])
+	VALUES (@logId, @scriptId, @scriptVersion, 'STRUCTURE', @scriptName, @dbVersionId, @timestamp, null,1);
 END
 GO
 
@@ -262,5 +344,7 @@ BEGIN
 	)
 END
 GO
-/***********************************************************************************/
-EXEC [dbo].[REV_SP_CompleteStructureScript] 'CDED157F-2538-4F33-81E0-4B2DD1BCC4AA', '1.0.0';
+/**********************************************************************************************/
+
+
+

@@ -43,7 +43,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <Authors>Revo Framework</Authors>
+    <Version>1.2.0-RC</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DataAccess\Revo.DataAccess.EF6\Revo.DataAccess.EF6.csproj" />
     <ProjectReference Include="..\..\DataAccess\Revo.DataAccess\Revo.DataAccess.csproj" />
@@ -72,8 +80,5 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Net" />
     <Reference Include="System.Data.DataSetExtensions" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

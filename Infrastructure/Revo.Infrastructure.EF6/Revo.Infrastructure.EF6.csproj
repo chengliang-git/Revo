@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <Authors>Revo Framework</Authors>
+    <Version>1.2.0-RC</Version>
   </PropertyGroup>
   
   <ItemGroup>

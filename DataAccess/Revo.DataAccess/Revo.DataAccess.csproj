@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
     <Authors>Revo Framework</Authors>
+    <Version>1.2.0-RC</Version>
   </PropertyGroup>
   
   <ItemGroup>

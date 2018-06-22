@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <Authors>Revo Framework</Authors>
+    <Version>1.2.0-RC</Version>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
   
   <ItemGroup>

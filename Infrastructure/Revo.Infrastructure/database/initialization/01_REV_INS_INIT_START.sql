@@ -1,0 +1,18 @@
+/*
+ModuleId: 5F08DF74-3C4B-4DBD-AD35-26565239E157
+Version: 1.2.0
+ScriptId: 5981AF9B-5BC3-44BD-A7D7-572FB328AABA
+*/
+EXEC [dbo].[REV_SP_CheckScriptsNotRun] '5981AF9B-5BC3-44BD-A7D7-572FB328AABA';
+GO
+/**********************************************************/
+
+INSERT INTO REV_MODULE (REV_MOD_ModuleId, REV_MOD_Version, REV_MOD_Name)
+VALUES ('5F08DF74-3C4B-4DBD-AD35-26565239E157',1,'Revo.Infrastructure');
+
+INSERT INTO [REV_DB_VERSION] (REV_DBV_DbVersionId, REV_DBV_ModuleId, REV_DBV_DbVersion, REV_DBV_MinModuleVersion, REV_DBV_MaxModuleVersion, REV_DBV_Version)
+VALUES ('2D3C7567-2905-4466-972C-C38204FA7F18','5F08DF74-3C4B-4DBD-AD35-26565239E157','INSTALLING-1.2.0', '1.2.0', '1.2.0', 1);
+
+/***********************************************************/
+EXEC [dbo].[REV_SP_RunStructureScript] '5981AF9B-5BC3-44BD-A7D7-572FB328AABA', '01_REV_INS_INIT_START', '2D3C7567-2905-4466-972C-C38204FA7F18', '1.2.0';
+EXEC [dbo].[REV_SP_CompleteStructureScript] '5981AF9B-5BC3-44BD-A7D7-572FB328AABA', '1.2.0';
