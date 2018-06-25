@@ -111,9 +111,7 @@ namespace Revo.Platforms.AspNet.Security
 
         public PasswordVerificationResult VerifyHashedPassword(string hashedPassword, string providedPassword)
         {
-            HashParameters hashParams;
-            byte[] salt, key;
-            ReadParams(hashedPassword, out hashParams, out salt, out key);
+            ReadParams(hashedPassword, out var hashParams, out var salt, out var key);
 
             byte[] providedKey = CryptSharp.Utility.SCrypt.ComputeDerivedKey(
                 Encoding.UTF8.GetBytes(providedPassword),
@@ -123,9 +121,7 @@ namespace Revo.Platforms.AspNet.Security
                 hashParams.ParallelizationFactor,
                 null,
                 hashParams.HashSize);
-
-            //return Memcmp(key, providedKey) ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
-            return PasswordVerificationResult.Success; //TODO - right now, the computed key isn't compatible with the Delphi implementation
+            return providedKey.SequenceEqual(key) ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
         }
 
         private void ReadParams(string hashedPassword, out HashParameters outParameters,
