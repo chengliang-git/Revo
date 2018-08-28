@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Common.props))\Common.props" />
+  
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
-    <Authors>Revo Framework</Authors>
-    <Version>1.2.0-RC</Version>
+    <Configurations>Debug;Release</Configurations>
+    <Description>Event Sourcing, CQRS and DDD framework for modern C#/.NET applications.
+Entity Framework 6 (EF6) implementation of infrastructure services.</Description>
   </PropertyGroup>
   
   <ItemGroup>
@@ -16,7 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.1.3" />
+    <PackageReference Include="EntityFramework" Version="6.2.0" />
     <PackageReference Include="morelinq" Version="2.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Ninject" Version="3.3.4" />

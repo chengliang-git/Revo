@@ -1,16 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Common.props))\Common.props" />
+
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <Configurations>Debug;Release</Configurations>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <Description>Event Sourcing, CQRS and DDD framework for modern C#/.NET applications.
+ASP.NET interop extension package.</Description>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -20,6 +18,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -28,6 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -41,17 +41,7 @@
     <NuGetPackageImportStamp />
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup>
-    <Authors>Revo Framework</Authors>
-    <Version>1.2.0-RC</Version>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <None Remove="Properties\**" />
-  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\DataAccess\Revo.DataAccess.EF6\Revo.DataAccess.EF6.csproj" />
     <ProjectReference Include="..\..\DataAccess\Revo.DataAccess\Revo.DataAccess.csproj" />
@@ -61,6 +51,7 @@
     <ProjectReference Include="..\..\Revo.Core\Revo.Core.csproj" />
     <ProjectReference Include="..\..\Revo.Domain\Revo.Domain.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.4" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.4" />
@@ -76,9 +67,11 @@
     <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Net" />
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
+
 </Project>

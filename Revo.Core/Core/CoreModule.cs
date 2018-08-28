@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Ninject;
 using Ninject.Extensions.ContextPreservation;
 using Ninject.Modules;
 using Revo.Core.Commands;
 using Revo.Core.Events;
 using Revo.Core.Lifecycle;
+using Revo.Core.Security;
 using Revo.Core.Transactions;
 using Revo.Core.Types;
 
@@ -57,6 +59,40 @@ namespace Revo.Core.Core
             Rebind<IVersionedTypeRegistry>()
                 .To<VersionedTypeRegistry>()
                 .InSingletonScope();
+
+            if (Kernel.GetBindings(typeof(IUserPermissionResolver)).Count() == 0)
+            {
+                Bind<IUserPermissionResolver>()
+                    .To<NullUserPermissionResolver>()
+                    .InSingletonScope();
+            }
+
+            if (Kernel.GetBindings(typeof(IRolePermissionResolver)).Count() == 0)
+            {
+                Bind<IRolePermissionResolver>()
+                    .To<NullRolePermissionResolver>()
+                    .InSingletonScope();
+            }
+
+            Bind<IPermissionTypeRegistry>()
+                .To<PermissionTypeRegistry>()
+                .InSingletonScope();
+
+            Bind<PermissionTypeIndexer, IApplicationStartListener>()
+                .To<PermissionTypeIndexer>()
+                .InSingletonScope();
+
+            Bind<IPermissionAuthorizationMatcher>()
+                .To<PermissionAuthorizationMatcher>()
+                .InRequestOrJobScope();
+
+            Bind<IPermissionCache>()
+                .To<PermissionCache>()
+                .InSingletonScope();
+
+            Bind<IUserPermissionAuthorizer>()
+                .To<UserPermissionAuthorizer>()
+                .InRequestOrJobScope();
         }
     }
 }
