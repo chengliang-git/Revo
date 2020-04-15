@@ -61,19 +61,20 @@ namespace Revo.Infrastructure.DataAccess.Migrations
 
             if (targetVersion != null)
             {
-                if (!Equals(moduleMigrations.LastOrDefault()?.Version, targetVersion))
+                if (moduleMigrations.Any() && moduleMigrations.Last().IsRepeatable)
                 {
-                    throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}': migration for required version {targetVersion} was not found");
+                    throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}' version {targetVersion} because it is a repeatable migration module, which means it is versioned only by checksums");
                 }
             }
             else if (!moduleMigrations.Any())
             {
-                throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}': no version for specified module were found");
+                // TODO maybe return without errors if there are migrations for this module with different tags?
+                throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}': no migrations for specified module were found");
             }
             
             List<IDatabaseMigration> result = new List<IDatabaseMigration>();
-
-            if (targetVersion == null && moduleMigrations.Last().IsRepeatable)
+            
+            if (moduleMigrations.Any() && moduleMigrations.Last().IsRepeatable) // repeatable-migration module
             {
                 if (!queuedMigrations.Any(x => string.Equals(x.ModuleName, moduleName, StringComparison.InvariantCultureIgnoreCase)))
                 {
@@ -106,7 +107,7 @@ namespace Revo.Infrastructure.DataAccess.Migrations
                         .OrderByDescending(x => x.Version).FirstOrDefault();
                     version = lastMigration?.Version;
                 }
-
+                
                 if (version == null)
                 {
                     var baseline = moduleMigrations.FirstOrDefault(x => x.IsBaseline);
@@ -114,23 +115,35 @@ namespace Revo.Infrastructure.DataAccess.Migrations
                     {
                         result.Add(baseline);
                         result.AddRange(moduleMigrations
-                            .Where(x => !x.IsRepeatable && x.Version.CompareTo(baseline.Version) > 0));
+                            .Where(x => x.Version.CompareTo(baseline.Version) > 0));
                     }
                     else
                     {
-                        result.AddRange(moduleMigrations.Where(x => !x.IsRepeatable));
+                        result.AddRange(moduleMigrations);
                     }
-
-                    result.AddRange(moduleMigrations.Where(x => x.IsRepeatable));
                 }
                 else
                 {
                     result.AddRange(moduleMigrations
-                        .Where(x => !x.IsRepeatable && !x.IsBaseline && x.Version.CompareTo(version) > 0));
-
-                    if (result.Count > 0)
+                        .Where(x => !x.IsBaseline && x.Version.CompareTo(version) > 0));
+                }
+                
+                if (targetVersion != null)
+                {
+                    if ((version == null || version.CompareTo(targetVersion) < 0)
+                        && (!result.Any() || !Equals(result.LastOrDefault()?.Version, targetVersion)))
                     {
-                        result.AddRange(moduleMigrations.Where(x => x.IsRepeatable));
+                        throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}': migration for required version {targetVersion} from {version?.ToString() ?? "nothing"} was not found");
+                    }
+                }
+                else
+                {
+                    var maxVersion = moduleMigrations.Select(x => x.Version).Max();
+
+                    if ((!result.Any() && (version == null || version.CompareTo(maxVersion) < 0))
+                        || (result.Any() && !result.Last().Version.Equals(maxVersion)))
+                    {
+                        throw new DatabaseMigrationException($"Cannot select database migrations for module '{moduleName}': migration path to required version 'latest' ({maxVersion}) from {version?.ToString() ?? "nothing"} was not found");
                     }
                 }
             }
@@ -218,12 +231,12 @@ namespace Revo.Infrastructure.DataAccess.Migrations
 
                     if (dependency.Version != null)
                     {
-                        matchingDependencies = matchingDependencies.Where(x => dependency.Version.Equals(x.Version));
-
-                        if (matchingDependencies.Any() && version != null && version.CompareTo(matchingDependencies.First().Version) >= 0)
+                        if (version != null && version.CompareTo(dependency.Version) >= 0)
                         {
-                            continue; // nothing to upgrade, case when !matchingDependencies.Any() is handled later
+                            continue; // skip if nothing to upgrade, an actual migration to that version does not need to exist
                         }
+
+                        matchingDependencies = matchingDependencies.Where(x => dependency.Version.Equals(x.Version)); // case when !matchingDependencies.Any() is handled later
                     }
                     else
                     {

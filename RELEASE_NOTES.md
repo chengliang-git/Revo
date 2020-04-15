@@ -1,5 +1,50 @@
 # RELEASE NOTES
 
+## [1.16.0] - 2020-03-05
+
+### Added
+- improved multi-tenancy configuration
+
+### Changed
+- breaking change: null tenants now cannot access other tenant's data by default (can be changed by configuration)
+
+## [1.15.0] - 2020-03-05
+
+### Added
+- IDatabaseMigrationExecutionOptions.MigrateOnlySpecifiedModules can now be specified using wildcards
+
+### Fixed
+- database migrations: doesn't throw anymore if there is no migration for specified version, but DB is already up-to-date
+- database migrations: now throws when updating to 'latest' version, but no migrations are found
+
+## [1.14.1] - 2020-02-26
+
+### Added
+- IReadRepository.GetManyAsync and FindManyAsync
+
+### Fixed
+- fixed appending events to event store (wrong expected event number)
+
+## [1.14.0] - 2020-02-11
+
+### Added
+- event upgrade support - just implement IEventUpgrade in your code (auto discovery) and Revo upgrades the event streams on-the-fly upon loading the aggregates
+
+### Fixed
+- event version parsed from types whose name ends with V letter without number no longer recognized as versioned name
+
+### Changed
+- EventSourcedAggregateRoot.Commit increases Version by 1 (previously by event count)
+- EntityEventToPocoProjector uses AggregateVersion instead of StreamSequenceNumber event metadata for read model versioning
+
+### Removed
+- removed APNS and FCM (push notification) channel support from Revo.Extensions.Notifications using obsolete PushSharp library
+
+## [1.13.1] - 2020-01-15
+
+### Added
+- now it's possible to specify FileSqlDatabaseMigration version in its headers
+
 ## [1.13.0] - 2019-11-29
 
 ### Added

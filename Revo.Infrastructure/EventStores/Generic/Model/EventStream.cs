@@ -11,7 +11,7 @@ namespace Revo.Infrastructure.EventStores.Generic.Model
 {
     [TablePrefix(NamespacePrefix = "RES", ColumnPrefix = "EVS")]
     [DatabaseEntity]
-    public class EventStream : IRowVersioned
+    public class EventStream : IRowVersioned, IHasId<Guid>
     {
         private IReadOnlyDictionary<string, string> metadata;
         private JObject metadataJsonObject;
@@ -46,7 +46,7 @@ namespace Revo.Infrastructure.EventStores.Generic.Model
                         }
                         catch (JsonException e)
                         {
-                            throw new IOException($"Invalid event stream read from EF6EventStore, error deserializing JSON data: {e.ToString()}", e);
+                            throw new IOException($"Invalid {GetType().Name} read, error deserializing JSON data: {e.ToString()}", e);
                         }
                     }
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using Revo.Core.Types;
 using Xunit;
@@ -23,6 +18,7 @@ namespace Revo.Core.Tests.Types
                 typeof(TestIndexed),
                 typeof(TestIndexedMoreVersions),
                 typeof(TestIndexedMoreVersionsV2),
+                typeof(TestAnotherIndexedABCV),
                 typeof(TestIndexedRenamed),
                 typeof(TestNotIndexedAbstract),
                 typeof(TestNotIndexedGeneric<>),
@@ -53,6 +49,13 @@ namespace Revo.Core.Tests.Types
         {
             var result = sut.IndexTypes<ITestIndexed>();
             result.Should().Contain(new VersionedType(new VersionedTypeId("TestIndexedMoreVersions", 2), typeof(TestIndexedMoreVersionsV2)));
+        }
+
+        [Fact]
+        public void IndexesVersionByName_VAtTheEnd()
+        {
+            var result = sut.IndexTypes<ITestIndexed>();
+            result.Should().Contain(new VersionedType(new VersionedTypeId("TestAnotherIndexedABCV", 1), typeof(TestAnotherIndexedABCV)));
         }
 
         [Fact]
@@ -105,6 +108,10 @@ namespace Revo.Core.Tests.Types
         }
 
         public class TestIndexedMoreVersionsV2 : ITestIndexed
+        {
+        }
+
+        public class TestAnotherIndexedABCV : ITestIndexed
         {
         }
 
